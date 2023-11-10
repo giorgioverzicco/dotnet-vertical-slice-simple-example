@@ -1,0 +1,1 @@
+# dotnet-vertical-slice-simple-example
