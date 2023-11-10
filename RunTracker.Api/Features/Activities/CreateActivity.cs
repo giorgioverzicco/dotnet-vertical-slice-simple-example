@@ -6,13 +6,11 @@ using RunTracker.Api.Entities;
 
 namespace RunTracker.Api.Features.Activities;
 
-// This class is internal because must be only used by the CreateActivityEndpoint class,
-// also sealed because it's not meant to be inherited from.
 public sealed class CreateActivity
 {
     public sealed record Command(
         int UserId,
-        ActivityType ActivityType,
+        string ActivityType,
         float DistanceInMeters,
         TimeSpan Duration,
         DateOnly Date,
@@ -26,9 +24,9 @@ public sealed class CreateActivity
         public Validator()
         {
             RuleFor(x => x.UserId).NotEmpty();
-            RuleFor(x => x.ActivityType).IsInEnum();
+            RuleFor(x => x.ActivityType).IsEnumName(typeof(ActivityType), caseSensitive: false);
             RuleFor(x => x.DistanceInMeters).GreaterThan(0);
-            RuleFor(x => x.Duration).GreaterThan(TimeSpan.FromSeconds(30));
+            RuleFor(x => x.Duration).GreaterThanOrEqualTo(TimeSpan.FromSeconds(30));
             RuleFor(x => x.Date).NotEmpty();
             RuleFor(x => x.Location).NotEmpty();
         }
@@ -45,13 +43,14 @@ public sealed class CreateActivity
 
         public async Task<Response> Handle(Command request, CancellationToken cancellationToken)
         {
+            var activityType = Enum.Parse<ActivityType>(request.ActivityType, ignoreCase: true);
             var activity = new Activity
             {
                 UserId = request.UserId,
-                Type = request.ActivityType,
+                Type = activityType,
                 Distance = request.DistanceInMeters,
-                Duration = request.Duration,
-                Date = request.Date,
+                Duration = request.Duration.ToString(),
+                Date = request.Date.ToDateTime(TimeOnly.MinValue),
                 Location = request.Location,
                 Notes = request.Notes
             };

@@ -13,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddDbContext<RunTrackerDbContext>(o =>
         o.UseSqlite(config["Database:Sqlite"]));
 
+    builder.Services.AddSingleton<RunTrackerDapperContext>();
+
     builder.Services.AddMediatR(c =>
         {
             c.RegisterServicesFromAssemblyContaining<Program>();
@@ -38,8 +40,8 @@ var app = builder.Build();
         await context.Database.EnsureCreatedAsync();
     }
 
-    app.UseMiddleware<ValidationMiddleware>();
     app.UseMiddleware<ExceptionHandlingMiddleware>();
+    app.UseMiddleware<ValidationMiddleware>();
 
     app.MapCarter();
 
