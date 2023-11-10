@@ -1,1 +1,1 @@
-# dotnet-vertical-slice-simple-example
+# .NET 7 - Vertical Slice Architecture - Simple Example
